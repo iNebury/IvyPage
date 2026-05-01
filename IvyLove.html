@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Si algún día te sientes sola, recuerda que tienes a un chico en el centro del continente pensando en ti ♡</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      font-family: Arial, sans-serif;
+      color: white;
+      overflow-x: hidden;
+      background-image:
+        linear-gradient(rgba(5, 10, 25, 0.25), rgba(5, 10, 25, 0.42)),
+        url("https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=2200&q=80");
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+    }
+
+    .page {
+      width: min(100%, 1100px);
+      min-height: 100vh;
+      margin: 0 auto;
+      padding: 38px 18px 70px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 28px;
+      position: relative;
+      z-index: 2;
+    }
+
+    @keyframes fadeDown {
+      from {
+        opacity: 0;
+        transform: translateY(-22px) scale(0.96);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    @keyframes fadeUp {
+      from {
+        opacity: 0;
+        transform: translateY(28px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes softZoom {
+      from {
+        opacity: 0;
+        transform: scale(0.92);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    @keyframes floaty {
+      0% {
+        transform: translateY(0);
+      }
+      50% {
+        transform: translateY(-6px);
+      }
+      100% {
+        transform: translateY(0);
+      }
+    }
+
+    @keyframes sparkle {
+      0% {
+        opacity: 0;
+        transform: translateY(0) scale(0.7);
+      }
+      30% {
+        opacity: 1;
+      }
+      100% {
+        opacity: 0;
+        transform: translateY(-90px) scale(1.3);
+      }
+    }
+
+    .overlay-blur {
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(circle at 20% 80%, rgba(120, 220, 255, 0.22), transparent 28%),
+        radial-gradient(circle at 85% 30%, rgba(255, 160, 120, 0.22), transparent 32%);
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    .emoji-box {
+      padding: 12px 34px;
+      border-radius: 999px;
+      background: #ffc978;
+      color: #2b241b;
+      font-size: clamp(18px, 3vw, 27px);
+      font-weight: bold;
+      box-shadow: 0 10px 28px rgba(0, 0, 0, 0.22);
+      user-select: none;
+      animation:
+        fadeDown 0.9s ease forwards,
+        floaty 3s ease-in-out 1s infinite;
+    }
+
+    .gallery-title {
+      margin-top: 8px;
+      font-family: "Comic Sans MS", "Segoe Print", cursive;
+      font-size: clamp(16px, 3vw, 22px);
+      text-align: center;
+      text-shadow: 0 3px 10px rgba(0, 0, 0, 0.55);
+      opacity: 0;
+      animation: fadeUp 0.9s ease 0.25s forwards;
+    }
+
+    .accordion-gallery {
+      width: min(94vw, 820px);
+      height: 360px;
+      display: flex;
+      justify-content: center;
+      align-items: stretch;
+      gap: 8px;
+      padding: 12px;
+      border-radius: 28px;
+      background: rgba(0, 0, 0, 0.24);
+      box-shadow: 0 18px 45px rgba(0, 0, 0, 0.36);
+      backdrop-filter: blur(8px);
+      overflow: hidden;
+      touch-action: pan-y;
+      user-select: none;
+      cursor: grab;
+      opacity: 0;
+      animation: softZoom 0.9s ease 0.55s forwards;
+    }
+
+    .accordion-gallery.dragging {
+      cursor: grabbing;
+    }
+
+    .accordion-item {
+      flex: 0.45;
+      min-width: 24px;
+      height: 100%;
+      border-radius: 20px;
+      overflow: hidden;
+      cursor: pointer;
+      opacity: 0.62;
+      filter: contrast(88%) saturate(88%);
+      transform: scale(0.98);
+      transition:
+        flex 0.55s cubic-bezier(.2, .8, .2, 1),
+        opacity 0.35s ease,
+        filter 0.35s ease,
+        transform 0.35s ease,
+        box-shadow 0.35s ease;
+    }
+
+    .accordion-item.active {
+      flex: 5.2;
+      opacity: 1;
+      filter: contrast(118%) saturate(115%);
+      transform: scale(1.01);
+      box-shadow: 0 12px 26px rgba(0, 0, 0, 0.3);
+    }
+
+    .accordion-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      pointer-events: none;
+    }
+
+    .gallery-hint {
+      margin-top: -12px;
+      font-size: 14px;
+      text-align: center;
+      color: rgba(255, 255, 255, 0.9);
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.55);
+      opacity: 0;
+      animation: fadeUp 0.9s ease 0.85s forwards;
+    }
+
+    .note-link {
+      width: min(92vw, 390px);
+      min-height: 165px;
+      margin-top: 22px;
+      padding: 24px 28px;
+      border: 10px solid rgba(255, 240, 225, 0.88);
+      border-image: repeating-linear-gradient(
+        45deg,
+        rgba(255, 240, 225, 0.94) 0 10px,
+        rgba(255, 190, 190, 0.88) 10px 20px
+      ) 18;
+      background: rgba(64, 91, 78, 0.58);
+      color: white;
+      text-decoration: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      text-align: center;
+      box-shadow: 0 18px 45px rgba(0, 0, 0, 0.28);
+      backdrop-filter: blur(5px);
+      transform: rotate(-1deg);
+      transition:
+        transform 0.25s ease,
+        filter 0.25s ease,
+        box-shadow 0.25s ease;
+      opacity: 0;
+      animation: fadeUp 0.9s ease 1.15s forwards;
+    }
+
+    .note-link:hover {
+      transform: rotate(0deg) scale(1.04) translateY(-4px);
+      filter: brightness(1.08);
+      box-shadow: 0 24px 55px rgba(0, 0, 0, 0.35);
+    }
+
+    .note-text {
+      font-family: "Comic Sans MS", "Segoe Print", cursive;
+      font-size: clamp(15px, 2.6vw, 19px);
+      line-height: 1.7;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.45);
+    }
+
+    .click-text {
+      font-family: "Comic Sans MS", "Segoe Print", cursive;
+      font-size: clamp(20px, 4vw, 28px);
+      font-weight: bold;
+      text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+    }
+
+    .sparkles {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 3;
+    }
+
+    .sparkle {
+      position: absolute;
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.85);
+      animation: sparkle 4s linear infinite;
+    }
+
+    .shooting-star {
+      position: fixed;
+      width: 120px;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.9), transparent);
+      top: 18%;
+      left: -140px;
+      transform: rotate(-18deg);
+      opacity: 0;
+      animation: shootingStar 5s ease-in-out infinite;
+      z-index: 3;
+      pointer-events: none;
+    }
+
+    @keyframes shootingStar {
+      0% {
+        opacity: 0;
+        transform: translateX(0) translateY(0) rotate(-18deg);
+      }
+      10% {
+        opacity: 1;
+      }
+      35% {
+        opacity: 0;
+        transform: translateX(120vw) translateY(160px) rotate(-18deg);
+      }
+      100% {
+        opacity: 0;
+        transform: translateX(120vw) translateY(160px) rotate(-18deg);
+      }
+    }
+
+    /* Lightbox para ver las fotos en grande */
+    .lightbox {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.88);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 9999;
+    }
+
+    .lightbox.show {
+      display: flex;
+    }
+
+    .lightbox-img {
+      max-width: 95vw;
+      max-height: 88vh;
+      border-radius: 16px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
+      object-fit: contain;
+      animation: softZoom 0.22s ease forwards;
+    }
+
+    .lightbox-close {
+      position: absolute;
+      top: 18px;
+      right: 22px;
+      font-size: 42px;
+      color: white;
+      cursor: pointer;
+      line-height: 1;
+      user-select: none;
+      z-index: 10000;
+    }
+
+    .video-lightbox {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.9);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 9999;
+    }
+
+    .video-lightbox.show {
+      display: flex;
+    }
+
+    .video-player {
+      width: min(95vw, 820px);
+      max-height: 85vh;
+      border-radius: 18px;
+      box-shadow: 0 20px 55px rgba(0, 0, 0, 0.5);
+      background: black;
+      animation: softZoom 0.22s ease forwards;
+    }
+
+    .video-close {
+      position: absolute;
+      top: 18px;
+      right: 22px;
+      font-size: 42px;
+      color: white;
+      cursor: pointer;
+      line-height: 1;
+      user-select: none;
+      z-index: 10000;
+    }
+
+    .side-button {
+      position: fixed;
+      top: 52px;
+      transform: translateY(-50%);
+      width: 78px;
+      height: 78px;
+      border-radius: 50%;
+      border: none;
+      background: rgba(255, 255, 255, 0.16);
+      backdrop-filter: blur(10px);
+      color: white;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 10px;
+      font-size: 12px;
+      line-height: 1.2;
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.28);
+      z-index: 20;
+      transition: transform 0.25s ease, filter 0.25s ease, background 0.25s ease;
+      cursor: pointer;
+    }
+
+    .side-button:hover {
+      transform: translateY(-50%) scale(1.08);
+      filter: brightness(1.08);
+      background: rgba(255, 255, 255, 0.22);
+    }
+
+    .side-left {
+      left: 18px;
+    }
+
+    .side-right {
+      right: 18px;
+    }
+
+    @media (max-width: 720px) {
+      body {
+        background-attachment: scroll;
+      }
+
+      .page {
+        padding-top: 28px;
+        gap: 22px;
+      }
+
+      .accordion-gallery {
+        width: min(96vw, 430px);
+        height: 430px;
+        gap: 4px;
+        padding: 8px;
+        border-radius: 24px;
+      }
+
+      .accordion-item {
+        flex: 0.18;
+        min-width: 9px;
+        border-radius: 14px;
+      }
+
+      .accordion-item.active {
+        flex: 9;
+      }
+
+      .note-link {
+        margin-top: 10px;
+      }
+
+      .side-button {
+        width: 62px;
+        height: 62px;
+        font-size: 10px;
+        padding: 8px;
+      }
+
+      .side-left {
+        left: 10px;
+      }
+
+      .side-right {
+        right: 10px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="overlay-blur"></div>
+  <div class="sparkles" id="sparkles"></div>
+  <div class="shooting-star"></div>
+
+  <main class="page">
+    <div class="emoji-box">(=^.^=) ✿</div>
+
+    <p class="gallery-title">Si algún día te sientes sola, recuerda que tienes a un chico en el centro del continente pensando en ti ♡</p>
+
+    <section class="accordion-gallery" id="accordionGallery">
+      <div class="accordion-item active">
+        <img src="Fotos/Bryda.jpeg" alt="Foto de Bryda" />
+      </div>
+
+      <div class="accordion-item">
+        <img src="Fotos/David.jpg" alt="Foto de David" />
+      </div>
+
+      <div class="accordion-item">
+        <img src="Fotos/Diego .jpeg" alt="Foto de Diego" />
+      </div>
+
+      <div class="accordion-item">
+        <img src="Fotos/Jhonny.jpg" alt="Foto de Jhonny" />
+      </div>
+
+      <div class="accordion-item">
+        <img src="Fotos/Los Angeles Tio.png" alt="Foto de Los Ángeles Tío" />
+      </div>
+
+      <div class="accordion-item">
+        <img src="Fotos/Meliodas.jpeg" alt="Foto de Meliodas" />
+      </div>
+
+      <div class="accordion-item">
+        <img src="Fotos/Nicol.jpg" alt="Foto de Nicol" />
+      </div>
+
+      <div class="accordion-item">
+        <img src="Fotos/Rodrigo.jpg" alt="Foto de Rodrigo" />
+      </div>
+
+      <div class="accordion-item">
+        <img src="Fotos/Seisa.jpg" alt="Foto de Seisa" />
+      </div>
+
+      <div class="accordion-item">
+        <img src="Fotos/Tia.jpeg" alt="Foto de Tía" />
+      </div>
+
+      <div class="accordion-item">
+        <img src="Fotos/Triana.jpg" alt="Foto de Triana" />
+      </div>
+    </section>
+
+    <p class="gallery-hint">Toca una foto para seleccionarla. Si ya está seleccionada, tócala otra vez para verla completa. Si mueves el mouse o tu dedo sobre ellas, cambias la foto.</p>
+
+    <a class="note-link" href="#" id="openVideoButton">
+      <p class="note-text">
+        Esto es algo que hice con mucho cariño; con las fotos me ayudaron algunos amigos de otros países. Si haces clic aquí o pulsas, te saldrá un video mío diciéndote algunas cosas. Te quiero mucho.
+      </p>
+
+      <p class="click-text">Dame click &gt;w&lt;</p>
+    </a>
+  </main>
+
+  <a
+    class="side-button side-left"
+    href="https://imgur.com/user/iNebury/posts"
+    target="_blank"
+    rel="noopener noreferrer"
+  >
+    (ʕ•́ᴥ•̀ʔっ)
+  </a>
+
+  <button class="side-button side-right" id="openExtraPhotoButton" type="button" aria-label="Avisen de screamer" title="Avisen de screamer">
+    (̶◉͛‿◉̶)
+  </button>
+
+  <div class="lightbox" id="lightbox">
+    <span class="lightbox-close" id="lightboxClose">&times;</span>
+    <img class="lightbox-img" id="lightboxImg" src="" alt="Imagen ampliada" />
+  </div>
+
+  <div class="video-lightbox" id="videoLightbox">
+    <span class="video-close" id="videoClose">&times;</span>
+    <video class="video-player" id="videoPlayer" controls>
+      <source id="videoSource" src="Fotos/Video Diego.mp4" type="video/mp4" />
+      Tu navegador no soporta video.
+    </video>
+  </div>
+
+  <script>
+    const gallery = document.getElementById("accordionGallery");
+    const items = document.querySelectorAll(".accordion-item");
+
+    const lightbox = document.getElementById("lightbox");
+    const lightboxImg = document.getElementById("lightboxImg");
+    const lightboxClose = document.getElementById("lightboxClose");
+
+    const openVideoButton = document.getElementById("openVideoButton");
+    const videoLightbox = document.getElementById("videoLightbox");
+    const videoClose = document.getElementById("videoClose");
+    const videoPlayer = document.getElementById("videoPlayer");
+    const videoSource = document.getElementById("videoSource");
+    const openExtraPhotoButton = document.getElementById("openExtraPhotoButton");
+
+    let isDragging = false;
+    let hasMoved = false;
+    let startX = 0;
+    let currentIndex = 0;
+    const swipeDistance = 45;
+
+    function isDesktopDevice() {
+      return window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+    }
+
+    function activateItem(item) {
+      items.forEach((photo) => photo.classList.remove("active"));
+      item.classList.add("active");
+      currentIndex = Array.from(items).indexOf(item);
+    }
+
+    function activateByIndex(index) {
+      currentIndex = (index + items.length) % items.length;
+      activateItem(items[currentIndex]);
+    }
+
+    function activateItemFromPosition(x) {
+      const rect = gallery.getBoundingClientRect();
+      const relativeX = x - rect.left;
+      const sectionWidth = rect.width / items.length;
+      let index = Math.floor(relativeX / sectionWidth);
+
+      index = Math.max(0, Math.min(items.length - 1, index));
+      activateByIndex(index);
+    }
+
+    function openLightbox(src, alt) {
+      lightboxImg.src = src;
+      lightboxImg.alt = alt || "Imagen ampliada";
+      lightbox.classList.add("show");
+      document.body.style.overflow = "hidden";
+    }
+
+    function closeLightbox() {
+      lightbox.classList.remove("show");
+      lightboxImg.src = "";
+      document.body.style.overflow = "";
+    }
+
+    function openVideo(src = "Fotos/Video Diego.mp4") {
+      videoSource.src = src;
+      videoPlayer.load();
+      videoLightbox.classList.add("show");
+      document.body.style.overflow = "hidden";
+      videoPlayer.currentTime = 0;
+      videoPlayer.play().catch(() => {});
+    }
+
+    function closeVideo() {
+      videoLightbox.classList.remove("show");
+      videoPlayer.pause();
+      videoPlayer.currentTime = 0;
+      document.body.style.overflow = "";
+    }
+
+    items.forEach((item) => {
+      const img = item.querySelector("img");
+
+      // PC: al pasar el mouse cambia/resalta la foto.
+      item.addEventListener("mouseenter", () => {
+        if (isDesktopDevice()) {
+          activateItem(item);
+        }
+      });
+
+      // PC: al dar click abre la imagen en grande.
+      // Uso pointerup para PC porque es más seguro que click con esta galería.
+      item.addEventListener("pointerup", (event) => {
+        if (event.pointerType === "mouse") {
+          openLightbox(img.src, img.alt);
+        }
+      });
+
+      // Celular: si la foto ya está seleccionada, la abre en grande; si no, la selecciona.
+      item.addEventListener("click", () => {
+        if (isDesktopDevice()) return;
+        if (hasMoved) return;
+
+        if (item.classList.contains("active")) {
+          openLightbox(img.src, img.alt);
+        } else {
+          activateItem(item);
+        }
+      });
+    });
+
+    gallery.addEventListener("pointerdown", (event) => {
+      isDragging = true;
+      hasMoved = false;
+      startX = event.clientX;
+      gallery.classList.add("dragging");
+
+      if (event.pointerType === "touch") {
+        activateItemFromPosition(event.clientX);
+      }
+
+      gallery.setPointerCapture?.(event.pointerId);
+    });
+
+    gallery.addEventListener("pointermove", (event) => {
+      if (!isDragging) return;
+
+      const moveX = event.clientX - startX;
+
+      if (Math.abs(moveX) > 8) {
+        hasMoved = true;
+      }
+
+      // Celular: pasar el dedo encima de la galería resalta la foto de esa zona.
+      if (event.pointerType === "touch") {
+        activateItemFromPosition(event.clientX);
+      }
+
+      if (moveX <= -swipeDistance) {
+        activateByIndex(currentIndex + 1);
+        startX = event.clientX;
+      }
+
+      if (moveX >= swipeDistance) {
+        activateByIndex(currentIndex - 1);
+        startX = event.clientX;
+      }
+    });
+
+    gallery.addEventListener("pointerup", () => {
+      isDragging = false;
+      gallery.classList.remove("dragging");
+
+      setTimeout(() => {
+        hasMoved = false;
+      }, 60);
+    });
+
+    gallery.addEventListener("pointerleave", () => {
+      isDragging = false;
+      gallery.classList.remove("dragging");
+    });
+
+    gallery.addEventListener("pointercancel", () => {
+      isDragging = false;
+      gallery.classList.remove("dragging");
+    });
+
+    lightboxClose.addEventListener("click", closeLightbox);
+
+    openVideoButton.addEventListener("click", (event) => {
+      event.preventDefault();
+      openVideo();
+    });
+
+    videoClose.addEventListener("click", closeVideo);
+
+    videoLightbox.addEventListener("click", (event) => {
+      if (event.target === videoLightbox) {
+        closeVideo();
+      }
+    });
+
+    openExtraPhotoButton.addEventListener("click", () => {
+      openVideo("Fotos/Nose.mp4");
+    });
+
+    lightbox.addEventListener("click", (event) => {
+      if (event.target === lightbox) {
+        closeLightbox();
+      }
+    });
+
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") {
+        closeLightbox();
+        closeVideo();
+      }
+    });
+
+    function createSparkles() {
+      const sparkles = document.getElementById("sparkles");
+
+      for (let i = 0; i < 55; i++) {
+        const sparkle = document.createElement("span");
+
+        sparkle.className = "sparkle";
+        sparkle.style.left = Math.random() * 100 + "vw";
+        sparkle.style.top = Math.random() * 100 + "vh";
+        sparkle.style.animationDelay = Math.random() * 4 + "s";
+        sparkle.style.animationDuration = 3 + Math.random() * 4 + "s";
+
+        const size = 3 + Math.random() * 4;
+        sparkle.style.width = size + "px";
+        sparkle.style.height = size + "px";
+
+        sparkles.appendChild(sparkle);
+      }
+    }
+
+    createSparkles();
+  </script>
+</body>
+</html>
